@@ -39,7 +39,8 @@ let g:makeprgs['ruby_file'] = 'rspec\ -I.\ '
 let g:makeprgs['ruby_project'] = 'rspec\ -I.\ *_spec.rb'
 
 let g:errorformats['django'] = '%C\ %.%#,%A\ \ File\ \"%f\"\\,\ line\ %l%.%#,%Z%[%^\ ]%\\@=%m'
-let g:errorformats['ruby'] = '%A\ \ %n)%.%#,%C\ \ \ \ \ Failure/Error:\ %m,%Z\ \ \ \ \ #\ %f:%l:%.%#,%-G%.%#'
+"let g:errorformats['ruby'] = '%A\ \ %n)%.%#,%C\ \ \ \ \ Failure/Error:\ %m,%Z\ \ \ \ \ #\ %f:%l:%.%#,%-G%.%#'
+let g:errorformats['ruby'] = '%A\ \ %n)%.%#,%C\ %#Failure/Error:\ %m,%C\ %#%*\\sError:,%Z\ %##\ %f:%l:%.%#,%C\ %#%m,%-G%.%#'
 
 " allow user to override filetype lookup in g:makeprgs and g:errorformats if
 " &filetype is not sufficient
@@ -86,7 +87,7 @@ function! JumpToError()
     endif
   endfor
   if has_valid_error
-    let error_message = substitute(error['text'], '^\W*', '', '')
+    let error_message = substitute(substitute(error['text'], '^\W*', '', ''), '\n', ' ', 'g')
     let bufnr = error['bufnr']
     let winnr = bufwinnr(bufnr)
     if winnr == -1

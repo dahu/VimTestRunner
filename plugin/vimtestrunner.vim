@@ -43,8 +43,9 @@ let g:errorformats['ruby'] = '%A\ \ %n)%.%#,%C\ \ \ \ \ Failure/Error:\ %m,%Z\ \
 
 " allow user to override filetype lookup in g:makeprgs and g:errorformats if
 " &filetype is not sufficient
-let b:ft = exists("g:make_filetype") ? g:ft : &filetype
-let &errorformat = g:errorformats[b:ft]
+"let g:fty = 'ruby'
+"echom "g:fty = " . g:fty
+"echom "ft = " . &ft
 
 " Private Functions {{{1
 " TODO: consider making these script local... would the user want to be able
@@ -55,10 +56,16 @@ endfunction
 
 function! RunTests(target, args)
   silent w
-  if len(a:target)
-    execute 'set makeprg=' . g:makeprgs[b:ft.'_file']
+  if exists("g:make_filetype")
+    let g:fty = g:make_filetype
   else
-    execute 'set makeprg=' . g:makeprgs[b:ft.'_project']
+    let g:fty = &filetype
+  endif
+  let &errorformat = g:errorformats[g:fty]
+  if len(a:target)
+    execute 'set makeprg=' . g:makeprgs[g:fty.'_file']
+  else
+    execute 'set makeprg=' . g:makeprgs[g:fty.'_project']
   endif
   silent call RunMake(a:target . " " . a:args)
 endfunction

@@ -19,7 +19,7 @@
 "
 " Licensed under the same terms as Vim itself.
 " ============================================================================
-let s:VimTestRunner_version = '0.0.1'  " alpha, unreleased
+let s:VimTestRunner_version = '0.0.2'  " alpha, usable
 "
 " Vimscript setup {{{1
 let s:old_cpo = &cpo
@@ -39,14 +39,7 @@ let g:makeprgs['ruby_file'] = 'rspec\ -I.\ '
 let g:makeprgs['ruby_project'] = 'rspec\ -I.\ *_spec.rb'
 
 let g:errorformats['django'] = '%C\ %.%#,%A\ \ File\ \"%f\"\\,\ line\ %l%.%#,%Z%[%^\ ]%\\@=%m'
-"let g:errorformats['ruby'] = '%A\ \ %n)%.%#,%C\ \ \ \ \ Failure/Error:\ %m,%Z\ \ \ \ \ #\ %f:%l:%.%#,%-G%.%#'
 let g:errorformats['ruby'] = '%A\ \ %n)%.%#,%C\ %#Failure/Error:\ %m,%C\ %#%*\\sError:,%Z\ %##\ %f:%l:%.%#,%C\ %#%m,%-G%.%#'
-
-" allow user to override filetype lookup in g:makeprgs and g:errorformats if
-" &filetype is not sufficient
-"let g:fty = 'ruby'
-"echom "g:fty = " . g:fty
-"echom "ft = " . &ft
 
 " Private Functions {{{1
 " TODO: consider making these script local... would the user want to be able
@@ -57,16 +50,18 @@ endfunction
 
 function! RunTests(target, args)
   silent w
-  if exists("g:make_filetype")
-    let g:fty = g:make_filetype
+  " Allow user to override filetype lookup in g:makeprgs and g:errorformats if
+  " &filetype is not sufficient
+  if exists("b:make_filetype")
+    let b:ft = b:make_filetype
   else
-    let g:fty = &filetype
+    let b:ft = &filetype
   endif
-  let &errorformat = g:errorformats[g:fty]
+  let &errorformat = g:errorformats[b:ft]
   if len(a:target)
-    execute 'set makeprg=' . g:makeprgs[g:fty.'_file']
+    execute 'set makeprg=' . g:makeprgs[b:ft.'_file']
   else
-    execute 'set makeprg=' . g:makeprgs[g:fty.'_project']
+    execute 'set makeprg=' . g:makeprgs[b:ft.'_project']
   endif
   silent call RunMake(a:target . " " . a:args)
 endfunction
